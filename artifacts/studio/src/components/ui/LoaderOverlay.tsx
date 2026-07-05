@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import logoUrl from '@assets/file_00000000ac5071fa95f1012621b3fdd2_1783276012047.png';
+import logoUrl from '@assets/file_00000000a29071fabf2b5caf9469536a_1783276703702.png';
 
 interface LoaderOverlayProps {
   onComplete: () => void;
@@ -116,9 +116,12 @@ export default function LoaderOverlay({ onComplete }: LoaderOverlayProps) {
             className="w-48 sm:w-56 md:w-64 h-auto object-contain block"
             draggable={false}
             style={{
-              mixBlendMode: 'screen',
+              WebkitMaskImage:
+                'radial-gradient(ellipse 78% 82% at 50% 44%, black 28%, rgba(0,0,0,0.6) 55%, transparent 78%)',
+              maskImage:
+                'radial-gradient(ellipse 78% 82% at 50% 44%, black 28%, rgba(0,0,0,0.6) 55%, transparent 78%)',
               filter:
-                'drop-shadow(0 0 22px rgba(212,175,55,0.55)) drop-shadow(0 6px 18px rgba(180,130,10,0.35)) drop-shadow(0 1px 4px rgba(0,0,0,0.9))',
+                'drop-shadow(0 0 28px rgba(212,175,55,0.6)) drop-shadow(0 6px 20px rgba(180,130,10,0.4))',
               transform: 'perspective(700px) rotateY(-4deg) rotateX(2deg)',
             }}
           />

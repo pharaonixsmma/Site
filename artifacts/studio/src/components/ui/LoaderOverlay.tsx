@@ -38,6 +38,14 @@ export default function LoaderOverlay({ onComplete }: LoaderOverlayProps) {
       '-=0.06'
     )
 
+    // 2b. Subtle 3D rock — logo gently pivots to centre after entering
+    .fromTo(
+      logoRef.current,
+      { rotateY: -4, rotateX: 2 },
+      { rotateY: 0, rotateX: 0, duration: 0.45, ease: 'power2.out' },
+      '<'
+    )
+
     // 3. Tagline fades in beneath
     .fromTo(
       taglineRef.current,
@@ -100,13 +108,19 @@ export default function LoaderOverlay({ onComplete }: LoaderOverlayProps) {
       <div ref={logoWrapRef} className="relative z-10 flex flex-col items-center gap-5">
 
         {/* Logo image with sweep clipped inside */}
-        <div className="relative overflow-hidden rounded-sm">
+        <div className="relative overflow-hidden rounded-sm" style={{ perspective: '700px' }}>
           <img
             ref={logoRef}
             src={logoUrl}
             alt="PHARAONIX"
             className="w-48 sm:w-56 md:w-64 h-auto object-contain block"
             draggable={false}
+            style={{
+              mixBlendMode: 'screen',
+              filter:
+                'drop-shadow(0 0 22px rgba(212,175,55,0.55)) drop-shadow(0 6px 18px rgba(180,130,10,0.35)) drop-shadow(0 1px 4px rgba(0,0,0,0.9))',
+              transform: 'perspective(700px) rotateY(-4deg) rotateX(2deg)',
+            }}
           />
           {/* Gold light sweep */}
           <div

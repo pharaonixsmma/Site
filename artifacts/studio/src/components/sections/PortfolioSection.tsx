@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import ProjectPreview from '@/components/ui/ProjectPreview';
 
 const projects = [
   {
@@ -7,53 +8,51 @@ const projects = [
     title: 'Healthcare Clinic',
     category: 'Website & Local SEO',
     description: 'Full website redesign with online appointment booking and local SEO optimization.',
-    gradient: 'linear-gradient(135deg, #1a1a1a 0%, #2d2200 100%)'
   },
   {
     id: '02',
     title: 'Modern Gym',
     category: 'Brand Identity & Lead Capture',
     description: 'Brand identity, website, and lead capture system for a modern fitness brand.',
-    gradient: 'linear-gradient(135deg, #0f0f0f 0%, #3a2800 100%)'
   },
   {
     id: '03',
     title: 'Premium Restaurant',
     category: 'Digital Presence',
     description: 'Menu showcase website with Google Maps integration and social media setup.',
-    gradient: 'linear-gradient(135deg, #111 0%, #2f2000 100%)'
-  }
+  },
 ];
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.18 }
-  }
+  visible: { opacity: 1, transition: { staggerChildren: 0.18 } },
 };
 
 const cardVariants = {
-  hidden: { y: 80, opacity: 0 },
+  hidden: { y: 60, opacity: 0 },
   visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring" as const,
-      damping: 22,
-      stiffness: 90
-    }
-  }
+    y: 0, opacity: 1,
+    transition: { type: 'spring' as const, damping: 22, stiffness: 90 },
+  },
 };
 
 export default function PortfolioSection() {
   return (
     <section id="portfolio" className="py-24 bg-card">
+      <style>{`
+        @keyframes portFloat {
+          0%, 100% { transform: translateY(0px); }
+          50%       { transform: translateY(-2.5px); }
+        }
+        .port-float { animation: portFloat 5s ease-in-out infinite; }
+        .port-float:hover { animation-play-state: paused; }
+      `}</style>
+
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
           className="mb-16 md:mb-20"
         >
           <h2 className="font-mono text-primary text-sm tracking-widest uppercase mb-4">02 / Portfolio</h2>
@@ -69,7 +68,7 @@ export default function PortfolioSection() {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: '-100px' }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
         >
           {projects.map((project, index) => (
@@ -77,33 +76,58 @@ export default function PortfolioSection() {
               key={project.id}
               variants={cardVariants}
               data-testid={`portfolio-card-${project.id}`}
-              className="group relative flex flex-col gap-4 cursor-hover"
+              className="group flex flex-col gap-4 cursor-hover"
             >
+              {/* Preview card */}
               <div
-                className="relative overflow-hidden bg-background rounded-sm aspect-[4/3]"
-                style={{ background: project.gradient }}
+                className="
+                  port-float relative overflow-hidden
+                  rounded-[24px]
+                  border border-[#D4AF37]/18
+                  shadow-[0_0_0_1px_rgba(212,175,55,0.05),0_8px_32px_rgba(0,0,0,0.55),0_0_50px_rgba(212,175,55,0.03)]
+                  group-hover:border-[#D4AF37]/40
+                  group-hover:shadow-[0_0_0_1px_rgba(212,175,55,0.09),0_12px_50px_rgba(0,0,0,0.65),0_0_70px_rgba(212,175,55,0.1)]
+                  group-hover:-translate-y-2
+                  transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]
+                  aspect-[4/3]
+                "
+                style={{ animationDelay: `${index * 0.55}s` }}
               >
-                <div className="absolute inset-0 border border-white/5 group-hover:border-primary/40 transition-colors duration-500 rounded-sm z-10" />
-                <div className="absolute inset-0 scale-[1.01] group-hover:scale-[1.06] transition-transform duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/30 via-transparent to-transparent" />
+                {/* Glass inner highlight */}
+                <div className="absolute inset-0 rounded-[24px] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent pointer-events-none z-10" />
 
-                <div className="absolute top-5 left-5 font-mono text-primary font-bold text-sm z-20">
+                {/* Live mockup */}
+                <div className="absolute inset-0">
+                  <ProjectPreview id={project.id} />
+                </div>
+
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/72 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 z-20 flex items-end rounded-[24px]">
+                  <div className="p-5 pb-6">
+                    <p className="font-sans text-white/85 text-xs leading-relaxed">
+                      {project.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Corner CTA */}
+                <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/15 flex items-center justify-center translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
+                  <ArrowUpRight className="text-white" size={14} />
+                </div>
+
+                {/* Index badge */}
+                <div className="absolute top-4 left-4 font-mono text-[10px] text-primary/70 z-30 bg-black/40 rounded-md px-1.5 py-0.5 backdrop-blur-sm border border-primary/10">
                   {project.id}
-                </div>
-
-                <div className="absolute inset-x-5 bottom-5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-400">
-                  <p className="font-sans text-white/80 text-xs leading-relaxed">
-                    {project.description}
-                  </p>
-                </div>
-
-                <div className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/5 backdrop-blur-md border border-white/10 flex items-center justify-center translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-20">
-                  <ArrowUpRight className="text-white" size={16} />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <h4 className="font-serif text-2xl text-white group-hover:text-primary transition-colors">{project.title}</h4>
-                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">{project.category}</p>
+                <h4 className="font-serif text-2xl text-white group-hover:text-primary transition-colors duration-300">
+                  {project.title}
+                </h4>
+                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
+                  {project.category}
+                </p>
               </div>
             </motion.div>
           ))}

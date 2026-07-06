@@ -7,7 +7,6 @@ import WorkSection from "@/components/sections/WorkSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import ProcessSection from "@/components/sections/ProcessSection";
 import ContactSection from "@/components/sections/ContactSection";
-import LoaderOverlay from "@/components/ui/LoaderOverlay";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -15,7 +14,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function StudioHome() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -30,7 +28,6 @@ export default function StudioHome() {
 
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-hidden">
-      {isLoading && <LoaderOverlay onComplete={() => setIsLoading(false)} />}
       <CustomCursor />
       <FloatingNav />
 

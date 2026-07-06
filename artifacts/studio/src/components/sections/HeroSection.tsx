@@ -12,17 +12,32 @@ export default function HeroSection({ mousePosition }: HeroSectionProps) {
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const ctx = gsap.context(() => {
       const lines = textRef.current?.querySelectorAll('.reveal-text');
-      if (lines) {
-        gsap.fromTo(lines,
-          { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, stagger: 0.15, duration: 1.2, ease: "power4.out" }
+      const cta   = textRef.current?.querySelector('.hero-cta');
+      if (!lines) return;
+
+      const tl = gsap.timeline({ delay: 0.1 });
+
+      // Headline lines slide up from clip
+      tl.fromTo(
+        lines,
+        { y: 60, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.12, duration: 1.0, ease: 'power4.out' }
+      );
+
+      // CTA buttons fade in with a subtle scale-up
+      if (cta) {
+        tl.fromTo(
+          cta,
+          { opacity: 0, scale: 0.94, y: 10 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.55, ease: 'power3.out' },
+          '-=0.4'
         );
       }
-    }, 2800);
+    });
 
-    return () => clearTimeout(timer);
+    return () => ctx.revert();
   }, []);
 
   const scrollTo = (href: string) => {
@@ -62,7 +77,7 @@ export default function HeroSection({ mousePosition }: HeroSectionProps) {
           </div>
 
           <div className="overflow-hidden">
-            <div className="reveal-text pointer-events-auto flex flex-col sm:flex-row gap-4">
+            <div className="reveal-text hero-cta pointer-events-auto flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => scrollTo('#contact')}
                 data-testid="hero-cta-consultation"

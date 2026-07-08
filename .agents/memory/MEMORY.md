@@ -1,0 +1,1 @@
+- [Vercel import may already be pnpm_workspace-shaped](vercel-import-already-ported.md) — check .migration-backup structure before assuming Next.js conversion is needed.

@@ -1,44 +1,56 @@
-# [Project name]
+# PHARAONIX Studio
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Premium 3D interactive website for PHARAONIX — a digital marketing agency serving Indian businesses.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/studio run dev` — run the 3D studio website (main artifact)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080, proxied at `/api`)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Apps run via Replit workflows, not root-level `pnpm dev` — use `WorkflowsRestart` or the preview pane.
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: React + Vite, React Three Fiber, GSAP, Framer Motion, Tailwind CSS v4
+- API: Express 5 (health check only so far; no DB-backed routes yet)
+- Fonts: Cormorant Garamond (serif), Space Grotesk (sans), Space Mono (mono)
+- Color palette: `#0B0B0B` bg, `#D4AF37` gold primary, white
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/studio/` — main 3D website artifact (previewPath `/`)
+- `artifacts/studio/src/components/sections/` — page sections (Hero, Work, Portfolio, About, Process, Contact)
+- `artifacts/studio/src/components/3d/` — Three.js scene and particle field
+- `artifacts/studio/src/components/ui/ServicePreview.tsx` — animated service card mockups
+- `artifacts/studio/src/components/ui/ProjectPreview.tsx` — portfolio project mockups
+- `artifacts/api-server/` — Express API server (previewPath `/api`)
+- `attached_assets/` — image assets referenced via the `@assets` Vite alias (lives outside the artifact root)
+- `lib/db/` — Drizzle/Postgres scaffold, not yet wired to any schema or route
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Contract-first API with OpenAPI spec + Orval codegen for hooks and Zod schemas
+- All section animations use GSAP ScrollTrigger; entrance animations use Framer Motion
+- Service/portfolio cards use pure CSS/SVG/DOM mockups (no images) for live previews
+- LoaderOverlay removed — hero entrance animations fire directly at page load
+- `artifacts/studio/vite.config.ts` sets `server.fs.strict: false` because `attached_assets/` lives outside the artifact root
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Awwwards-level 3D interactive marketing website for PHARAONIX digital agency. Features a React Three Fiber hero scene, animated service card previews, portfolio showcases, a 5-step process section, and a contact/consultation form.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Gold (#D4AF37) on black (#090909 / #0B0B0B) luxury aesthetic throughout
+- No spinning, bouncing, or flashy effects — smooth 60fps, minimal, cinematic
+- Space Mono for labels/mono text, Cormorant Garamond for display headings
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Do NOT run `pnpm dev` at workspace root; use `WorkflowsRestart` to start individual artifacts
+- The Three.js hero scene needs a WebGL context — some headless/sandboxed screenshot tools without GPU access will show a WebGL error overlay that does not occur in a real browser
 
 ## Pointers
 

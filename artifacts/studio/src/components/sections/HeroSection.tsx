@@ -35,6 +35,17 @@ export default function HeroSection({ mousePosition }: HeroSectionProps) {
           '-=0.4'
         );
       }
+
+      // Scroll indicator appears last, once everything else has settled
+      const scrollIndicator = document.querySelector('.hero-scroll-indicator');
+      if (scrollIndicator) {
+        tl.fromTo(
+          scrollIndicator,
+          { opacity: 0, y: 8 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' },
+          '-=0.1'
+        );
+      }
     });
 
     return () => ctx.revert();
@@ -84,7 +95,7 @@ export default function HeroSection({ mousePosition }: HeroSectionProps) {
                 className="group relative px-8 py-4 rounded-full bg-primary text-black font-mono text-sm tracking-widest uppercase overflow-hidden transition-colors hover:text-black flex items-center justify-center gap-3"
               >
                 <div className="absolute inset-0 bg-white translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
-                <span className="relative z-10 font-bold">Book Free Consultation</span>
+                <span className="relative z-10 font-bold">Start a Project</span>
                 <ArrowUpRight className="relative z-10" size={16} />
               </button>
               <button
@@ -93,17 +104,17 @@ export default function HeroSection({ mousePosition }: HeroSectionProps) {
                 className="group relative px-8 py-4 rounded-full border border-white/30 text-white font-mono text-sm tracking-widest uppercase overflow-hidden transition-colors hover:border-primary"
               >
                 <div className="absolute inset-0 bg-primary/10 translate-y-[101%] group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
-                <span className="relative z-10">View Our Work</span>
+                <span className="relative z-10">View Work</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 pointer-events-none">
-        <span className="font-mono text-[10px] text-white/50 tracking-[0.3em] uppercase">Scroll to Explore</span>
-        <div className="w-px h-12 bg-white/10 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-primary origin-top animate-[scroll-down_2s_ease-in-out_infinite]" />
+      <div className="hero-scroll-indicator absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 pointer-events-none opacity-0">
+        <span className="font-mono text-[9px] text-white/40 tracking-[0.4em] uppercase">Scroll</span>
+        <div className="w-px h-10 bg-white/10 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-primary/80 origin-top animate-[scroll-down_2.4s_ease-in-out_infinite]" />
         </div>
       </div>
     </section>

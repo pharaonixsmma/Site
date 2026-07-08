@@ -58,7 +58,7 @@ export default function HeroScene({ mousePosition }: HeroSceneProps) {
         </Float>
       </group>
 
-      <ParticleField />
+      <ParticleField mousePosition={mousePosition} />
       
       {/* Additional ambient sparkles */}
       <Sparkles count={100} scale={10} size={2} color="#D4AF37" opacity={0.2} speed={0.4} />

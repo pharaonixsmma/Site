@@ -10,19 +10,25 @@ export default function FloatingNav() {
   const backgroundColor = useTransform(
     scrollY,
     [0, 100],
-    ['rgba(23, 23, 23, 0.2)', 'rgba(23, 23, 23, 0.88)']
+    ['rgba(10, 10, 10, 0)', 'rgba(10, 10, 10, 0.5)']
   );
 
   const backdropBlur = useTransform(
     scrollY,
     [0, 100],
-    ['blur(8px)', 'blur(20px)']
+    ['blur(0px)', 'blur(28px)']
   );
 
   const borderColor = useTransform(
     scrollY,
     [0, 100],
-    ['rgba(212, 175, 55, 0.1)', 'rgba(212, 175, 55, 0.3)']
+    ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.08)']
+  );
+
+  const boxShadow = useTransform(
+    scrollY,
+    [0, 100],
+    ['0 0 0 rgba(0, 0, 0, 0)', '0 12px 40px rgba(0, 0, 0, 0.35)']
   );
 
   const links = [
@@ -66,17 +72,18 @@ export default function FloatingNav() {
   return (
     <>
       <motion.nav
-        className="fixed top-6 left-1/2 -translate-x-1/2 z-50 rounded-full px-4 md:px-6 py-2 md:py-3 flex items-center gap-4 md:gap-8"
+        className="fixed top-5 md:top-6 left-1/2 -translate-x-1/2 z-50 rounded-[24px] px-3 md:px-5 py-2.5 md:py-3 flex items-center gap-3 md:gap-8 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-[400ms] ease-out"
         style={{
           backgroundColor,
           backdropFilter: backdropBlur,
           WebkitBackdropFilter: backdropBlur,
           border: '1px solid',
           borderColor,
+          boxShadow,
         }}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
       >
         <button
           onClick={() => scrollTo('#home')}
@@ -86,38 +93,52 @@ export default function FloatingNav() {
           <img
             src={logoUrl}
             alt="PHARAONIX"
-            className="w-8 h-8 object-contain rounded-full"
+            className="w-7 h-7 md:w-8 md:h-8 object-contain rounded-full"
           />
           <span className="font-mono font-bold text-sm tracking-widest text-primary hidden sm:block">PHARAONIX</span>
         </button>
 
-        <div className="hidden md:flex items-center gap-6">
-          {links.map((link) => (
-            <button
-              key={link.name}
-              onClick={() => scrollTo(link.href)}
-              data-testid={`nav-link-${link.name.toLowerCase()}`}
-              className={`font-sans text-xs uppercase tracking-[0.2em] transition-colors duration-300 ${
-                activeSection === link.name.toLowerCase() ? 'text-primary' : 'text-white/70 hover:text-primary'
-              }`}
-            >
-              {link.name}
-            </button>
-          ))}
+        <div className="hidden md:flex items-center gap-7">
+          {links.map((link) => {
+            const isActive = activeSection === link.name.toLowerCase();
+            return (
+              <button
+                key={link.name}
+                onClick={() => scrollTo(link.href)}
+                data-testid={`nav-link-${link.name.toLowerCase()}`}
+                className="group relative font-sans text-xs uppercase tracking-[0.22em] py-1"
+              >
+                <span
+                  className={`transition-colors duration-300 ${
+                    isActive ? 'text-primary' : 'text-white/65 group-hover:text-white'
+                  }`}
+                >
+                  {link.name}
+                </span>
+                <span
+                  className={`absolute left-0 -bottom-0.5 h-px bg-primary transition-all duration-300 ease-out ${
+                    isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}
+                />
+              </button>
+            );
+          })}
         </div>
 
         <button
           onClick={() => scrollTo('#contact')}
           data-testid="nav-cta"
-          className="hidden md:flex items-center gap-2 bg-primary text-black font-mono text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full hover:bg-white transition-colors duration-300 cursor-hover"
+          className="hidden md:flex items-center gap-2 border border-primary/70 text-primary font-mono text-xs font-bold tracking-widest uppercase px-5 py-2 rounded-full hover:bg-primary hover:text-black hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(212,175,55,0.35)] transition-all duration-300 cursor-hover"
         >
-          Book Free Call
+          Start a Project
         </button>
 
         <button
           className="md:hidden text-white/70 hover:text-primary transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
           data-testid="nav-mobile-toggle"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
         >
           <div className="flex flex-col gap-1.5 w-5">
             <span className={`block h-px bg-current transition-all duration-300 origin-center ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
@@ -145,9 +166,9 @@ export default function FloatingNav() {
           ))}
           <button
             onClick={() => scrollTo('#contact')}
-            className="mt-4 bg-primary text-black font-mono text-sm font-bold tracking-widest uppercase px-8 py-4 rounded-full hover:bg-white transition-colors duration-300"
+            className="mt-4 border border-primary/70 text-primary font-mono text-sm font-bold tracking-widest uppercase px-8 py-4 rounded-full hover:bg-primary hover:text-black transition-colors duration-300"
           >
-            Book Free Consultation
+            Start a Project
           </button>
         </motion.div>
       )}

@@ -1,59 +1,44 @@
-# PHARAONIX Studio
+# [Project name]
 
-Premium 3D interactive website for PHARAONIX — a digital marketing agency serving Indian businesses.
+_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/studio run dev` — run the 3D studio website (main artifact)
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-
-## GitHub
-
-- Remote: `https://github.com/pharaonixsmma/Site.git`
-- Branch: `main`
-- To push updates: ensure `GITHUB_TOKEN` secret is set, then the `github` remote in `.git/config` uses it for auth
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
+- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- Frontend: React + Vite, React Three Fiber, GSAP, Framer Motion, Tailwind CSS
 - API: Express 5
-- Fonts: Cormorant Garamond (serif), Space Grotesk (sans), Space Mono (mono)
-- Color palette: `#0B0B0B` bg, `#D4AF37` gold primary, white
+- DB: PostgreSQL + Drizzle ORM
+- Validation: Zod (`zod/v4`), `drizzle-zod`
+- API codegen: Orval (from OpenAPI spec)
+- Build: esbuild (CJS bundle)
 
 ## Where things live
 
-- `artifacts/studio/` — main 3D website artifact
-- `artifacts/studio/src/components/sections/` — all page sections (Hero, Work, Portfolio, About, Process, Contact)
-- `artifacts/studio/src/components/3d/` — Three.js scene and particle field
-- `artifacts/studio/src/components/ui/ServicePreview.tsx` — animated service card mockups
-- `artifacts/studio/src/components/ui/ProjectPreview.tsx` — portfolio project mockups
-- `artifacts/api-server/` — Express API server
+_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
 
 ## Architecture decisions
 
-- Contract-first API with OpenAPI spec + Orval codegen for hooks and Zod schemas
-- All section animations use GSAP ScrollTrigger; entrance animations use Framer Motion
-- Service/portfolio cards use pure CSS/SVG/DOM mockups (no images) for live previews
-- LoaderOverlay removed — hero entrance animations fire directly at page load
+_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
 
 ## Product
 
-Awwwards-level 3D interactive marketing website for PHARAONIX digital agency. Features a React Three Fiber hero scene, animated service card previews, portfolio showcases, 5-step process section, and a contact/consultation form.
+_Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-- Gold (#D4AF37) on black (#090909 / #0B0B0B) luxury aesthetic throughout
-- No spinning, bouncing, or flashy effects — smooth 60fps, minimal, cinematic
-- Space Mono for labels/mono text, Cormorant Garamond for display headings
+_Populate as you build — explicit user instructions worth remembering across sessions._
 
 ## Gotchas
 
-- `git remote add` is sandboxed in the Replit main agent — the GitHub remote was added by writing directly to `.git/config` via Python
-- GITHUB_TOKEN PAT is embedded in the `.git/config` remote URL — rotate it at github.com/settings/tokens after use
-- Do NOT run `pnpm dev` at workspace root; use `restart_workflow` to start individual artifacts
+_Populate as you build — sharp edges, "always run X before Y" rules._
 
 ## Pointers
 

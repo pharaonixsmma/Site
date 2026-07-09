@@ -223,7 +223,7 @@ function ServiceBlock({ service }: { service: Service }) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
         transition={{ duration: 0.75, ease: EXPO, delay: 0.22 }}
-        className="font-sans text-base md:text-[1.0625rem] text-white/55 leading-[1.75] mb-10 max-w-[26rem]"
+        className="font-sans text-base md:text-[1.0625rem] text-white/55 leading-[1.75] mb-10"
       >
         {service.description}
       </motion.p>
@@ -286,7 +286,7 @@ function ServiceBlock({ service }: { service: Service }) {
         Desktop: two-column grid, alternating order.
         Mobile: always text first, then preview beneath.
       */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-16 lg:gap-24 items-center">
+      <div className="grid grid-cols-1 md:[grid-template-columns:44fr_56fr] gap-10 md:gap-12 lg:gap-14 items-center">
         {/* Mobile order is always text (order-1) then preview (order-2).
             Desktop flips via md:order-* when flip=true. */}
         <div className={`order-1 ${flip ? 'md:order-2' : 'md:order-1'}`}>

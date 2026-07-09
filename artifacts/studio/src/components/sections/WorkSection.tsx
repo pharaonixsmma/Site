@@ -1,13 +1,34 @@
-import { useState, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
+/* ═══════════════════════════════════════════════════════════════
+   WorkSection — Premium editorial services showcase
+   Four alternating full-bleed sections, each with its own
+   dedicated live preview, line-by-line text reveals & 3D tilt.
+════════════════════════════════════════════════════════════════ */
+
+import { useRef, useCallback, useState } from 'react';
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import ServicePreview, { ServicePreviewStyles } from '@/components/ui/ServicePreview';
+
+/* ─── Scroll helper ───────────────────────────────────────────── */
+function scrollTo(href: string) {
+  const el = document.querySelector(href);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ─── Easing ──────────────────────────────────────────────────── */
+const EXPO = [0.16, 1, 0.3, 1] as [number, number, number, number];
 
 /* ─── Service data ────────────────────────────────────────────── */
 const services = [
   {
     id: '01',
-    title: 'Website Design',
+    num: '01',
+    title: ['Website', 'Design'],
     category: 'Custom Web Presence',
     description:
       'Premium websites built to convert. Crafted entirely around your brand — every pixel positioned to turn first-time visitors into loyal customers.',
@@ -17,10 +38,12 @@ const services = [
       'SEO-ready architecture',
     ],
     cta: 'Build My Website',
+    flip: false,
   },
   {
     id: '02',
-    title: 'Brand Identity',
+    num: '02',
+    title: ['Brand', 'Identity'],
     category: 'Strategy & Branding',
     description:
       'A complete brand system — logo, typography, colour, and guidelines — that makes your business unforgettable from the very first impression.',
@@ -30,10 +53,12 @@ const services = [
       'Print & digital collateral',
     ],
     cta: 'Build My Brand',
+    flip: true,
   },
   {
     id: '03',
-    title: 'AI & Automation',
+    num: '03',
+    title: ['AI &', 'Automation'],
     category: 'Growth Systems',
     description:
       'Intelligent workflows that capture leads, qualify prospects, and keep your business running 24/7 — without adding headcount or complexity.',
@@ -43,10 +68,12 @@ const services = [
       'Custom workflow systems',
     ],
     cta: 'Automate My Business',
+    flip: false,
   },
   {
     id: '04',
-    title: 'Digital Marketing',
+    num: '04',
+    title: ['Digital', 'Marketing'],
     category: 'Performance & Growth',
     description:
       'Data-driven campaigns across every channel — Google, Meta, email, and beyond — engineered for measurable revenue growth.',
@@ -56,8 +83,9 @@ const services = [
       'Analytics & monthly reporting',
     ],
     cta: 'Grow My Revenue',
+    flip: true,
   },
-];
+] as const;
 
 const additionalServices = [
   'Graphic Design',
@@ -68,49 +96,41 @@ const additionalServices = [
   'AI Consultation',
 ];
 
-/* ─── Easing helpers ──────────────────────────────────────────── */
-const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as [number, number, number, number];
-const EASE_IN_QUART = [0.7, 0, 0.84, 0] as [number, number, number, number];
-
 /* ─── 3D Tilt card ────────────────────────────────────────────── */
-function TiltPreviewCard({ active }: { active: number }) {
+function TiltCard({ serviceId }: { serviceId: string }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Raw mouse position normalised to [-0.5, 0.5]
   const rawX = useMotionValue(0);
   const rawY = useMotionValue(0);
+  const springX = useSpring(rawX, { damping: 40, stiffness: 260, mass: 0.75 });
+  const springY = useSpring(rawY, { damping: 40, stiffness: 260, mass: 0.75 });
 
-  // Spring-smoothed values — provide natural inertia
-  const springX = useSpring(rawX, { damping: 38, stiffness: 280, mass: 0.7 });
-  const springY = useSpring(rawY, { damping: 38, stiffness: 280, mass: 0.7 });
-
-  // Map springs → rotation angles
-  const rotateY = useTransform(springX, [-0.5, 0.5], [-7, 7]);
-  const rotateX = useTransform(springY, [-0.5, 0.5], [5, -5]);
-
-  // Floating shadow deepens as card tilts away
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-6, 6]);
+  const rotateX = useTransform(springY, [-0.5, 0.5], [4, -4]);
   const boxShadow = useTransform(
     springY,
     [-0.5, 0, 0.5],
     [
-      '0 0 0 1px rgba(212,175,55,0.08), 0 36px 70px rgba(0,0,0,0.9)',
-      '0 0 0 1px rgba(212,175,55,0.06), 0 20px 50px rgba(0,0,0,0.7)',
-      '0 0 0 1px rgba(212,175,55,0.08), 0 36px 70px rgba(0,0,0,0.9)',
+      '0 0 0 1px rgba(212,175,55,0.09), 0 40px 80px rgba(0,0,0,0.85)',
+      '0 0 0 1px rgba(212,175,55,0.05), 0 24px 56px rgba(0,0,0,0.65)',
+      '0 0 0 1px rgba(212,175,55,0.09), 0 40px 80px rgba(0,0,0,0.85)',
     ]
   );
 
-  // Moving surface highlight tracks cursor
-  const [hl, setHl] = useState({ x: 50, y: 30 });
+  const [hl, setHl] = useState({ x: 50, y: 35 });
 
-  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const r = cardRef.current.getBoundingClientRect();
-    const nx = (e.clientX - r.left) / r.width - 0.5;
-    const ny = (e.clientY - r.top) / r.height - 0.5;
-    rawX.set(nx);
-    rawY.set(ny);
-    setHl({ x: (nx + 0.5) * 100, y: (ny + 0.5) * 100 });
-  }, [rawX, rawY]);
+  const onMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!cardRef.current) return;
+      const r = cardRef.current.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5;
+      const ny = (e.clientY - r.top) / r.height - 0.5;
+      rawX.set(nx);
+      rawY.set(ny);
+      setHl({ x: (nx + 0.5) * 100, y: (ny + 0.5) * 100 });
+    },
+    [rawX, rawY]
+  );
 
   const onLeave = useCallback(() => {
     rawX.set(0);
@@ -120,260 +140,216 @@ function TiltPreviewCard({ active }: { active: number }) {
   return (
     <div
       ref={cardRef}
-      style={{ perspective: '900px' }}
+      style={{ perspective: '1100px' }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
       <motion.div
         style={{ rotateX, rotateY, transformStyle: 'preserve-3d', boxShadow }}
-        className="relative rounded-[20px] overflow-hidden border border-primary/[0.08] aspect-[4/3] bg-[#080808]"
+        className="relative rounded-[22px] overflow-hidden border border-white/[0.06] aspect-[4/3] bg-[#080808]"
       >
-        {/* Static inner-edge vignette */}
-        <div className="absolute inset-0 rounded-[20px] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent pointer-events-none z-10" />
+        {/* Static edge highlight */}
+        <div className="absolute inset-0 rounded-[22px] bg-gradient-to-br from-white/[0.05] via-transparent to-transparent pointer-events-none z-10" />
 
-        {/* Moving surface highlight — follows cursor */}
+        {/* Cursor-tracking glass reflection */}
         <div
-          className="absolute inset-0 pointer-events-none z-20 rounded-[20px]"
+          className="absolute inset-0 pointer-events-none z-20 rounded-[22px]"
           style={{
-            background: `radial-gradient(circle at ${hl.x}% ${hl.y}%, rgba(255,255,255,0.055) 0%, transparent 52%)`,
-            transition: 'background 0.08s linear',
+            background: `radial-gradient(ellipse 65% 50% at ${hl.x}% ${hl.y}%, rgba(255,255,255,0.06) 0%, transparent 55%)`,
+            transition: 'background 0.06s linear',
           }}
         />
 
-        {/* Preview content with crossfade on service change */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={active}
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1, transition: { duration: 0.35 } }}
-            exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.22 } }}
-            className="absolute inset-0"
-          >
-            <ServicePreview id={services[active].id} />
-          </motion.div>
-        </AnimatePresence>
+        {/* Preview */}
+        <div className="absolute inset-0">
+          <ServicePreview id={serviceId} />
+        </div>
       </motion.div>
+    </div>
+  );
+}
+
+/* ─── Service block ───────────────────────────────────────────── */
+type Service = (typeof services)[number];
+
+function ServiceBlock({ service }: { service: Service }) {
+  const { flip } = service;
+
+  /* Text column */
+  const TextCol = (
+    <div className="flex flex-col justify-center">
+      {/* Service number + category */}
+      <motion.p
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.65, ease: EXPO }}
+        className="font-mono text-primary text-[10px] tracking-[0.28em] uppercase mb-8"
+      >
+        {service.num} — {service.category}
+      </motion.p>
+
+      {/* Title — line by line reveal */}
+      <div className="mb-10 overflow-hidden">
+        {service.title.map((line, i) => (
+          <div key={i} className="overflow-hidden">
+            <motion.h3
+              initial={{ y: '105%', opacity: 0 }}
+              whileInView={{ y: '0%', opacity: 1 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.9, ease: EXPO, delay: 0.08 + i * 0.12 }}
+              className="font-serif text-[clamp(3.5rem,7vw,7.5rem)] text-white italic leading-[0.9] tracking-tight"
+            >
+              {line}
+            </motion.h3>
+          </div>
+        ))}
+      </div>
+
+      {/* Description */}
+      <motion.p
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.75, ease: EXPO, delay: 0.22 }}
+        className="font-sans text-base md:text-[1.0625rem] text-white/55 leading-[1.75] mb-10 max-w-[26rem]"
+      >
+        {service.description}
+      </motion.p>
+
+      {/* Outcomes */}
+      <ul className="mb-12 space-y-[18px]">
+        {service.outcomes.map((outcome, i) => (
+          <motion.li
+            key={i}
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.55, ease: EXPO, delay: 0.3 + i * 0.09 }}
+            className="flex items-center gap-4"
+          >
+            <span className="w-6 h-px bg-primary/55 flex-shrink-0" />
+            <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/50">
+              {outcome}
+            </span>
+          </motion.li>
+        ))}
+      </ul>
+
+      {/* CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.65, ease: EXPO, delay: 0.45 }}
+      >
+        <button
+          onClick={() => scrollTo('#contact')}
+          className="group inline-flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] uppercase text-primary border border-primary/40 rounded-full px-7 py-3.5 hover:bg-primary hover:text-black hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(212,175,55,0.28)] transition-all duration-300 cursor-hover"
+        >
+          {service.cta}
+          <ArrowUpRight
+            size={13}
+            className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
+        </button>
+      </motion.div>
+    </div>
+  );
+
+  /* Preview column */
+  const PreviewCol = (
+    <motion.div
+      initial={{ opacity: 0, y: 36, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 1.05, ease: EXPO, delay: flip ? 0 : 0.1 }}
+    >
+      <TiltCard serviceId={service.id} />
+    </motion.div>
+  );
+
+  return (
+    <div className="border-t border-white/[0.06] py-24 md:py-32 lg:py-40">
+      {/*
+        Desktop: two-column grid, alternating order.
+        Mobile: always text first, then preview beneath.
+      */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-16 lg:gap-24 items-center">
+        {/* Mobile order is always text (order-1) then preview (order-2).
+            Desktop flips via md:order-* when flip=true. */}
+        <div className={`order-1 ${flip ? 'md:order-2' : 'md:order-1'}`}>
+          {TextCol}
+        </div>
+        <div className={`order-2 ${flip ? 'md:order-1' : 'md:order-2'}`}>
+          {PreviewCol}
+        </div>
+      </div>
     </div>
   );
 }
 
 /* ─── Main section ────────────────────────────────────────────── */
 export default function WorkSection() {
-  const [active, setActive] = useState(0);
-
-  const scrollTo = (href: string) => {
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <section id="services" className="py-24 md:py-32 bg-background">
+    <section id="services" className="bg-background overflow-hidden">
       <ServicePreviewStyles />
 
       <div className="max-w-7xl mx-auto px-6 md:px-12">
 
         {/* ── Section header ─────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-16 md:mb-20 flex flex-col md:flex-row md:items-end md:justify-between gap-6"
-        >
-          <div>
-            <p className="font-mono text-primary text-xs tracking-widest uppercase mb-4">01 / Services</p>
-            <h3 className="font-serif text-5xl md:text-7xl text-white italic leading-none">Built to Grow</h3>
-          </div>
-          <button
-            onClick={() => scrollTo('#contact')}
-            data-testid="services-cta"
-            className="self-start md:self-auto flex items-center gap-2 font-mono text-xs tracking-widest uppercase text-white/50 hover:text-primary transition-colors duration-300 cursor-hover"
+        <div className="pt-24 md:pt-32 pb-4">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.75, ease: EXPO }}
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-6"
           >
-            Start a Project <ArrowUpRight size={14} />
-          </button>
-        </motion.div>
-
-        {/* ── Main editorial layout ──────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row gap-0 md:gap-20 lg:gap-28"
-        >
-          {/* Left: accordion list */}
-          <div className="flex-1 min-w-0 border-t border-white/8">
-            {services.map((service, index) => {
-              const isActive = active === index;
-
-              return (
-                <div key={service.id} className="border-b border-white/8">
-                  {/* ── Row trigger ─────────────────────────── */}
-                  <button
-                    className="w-full flex items-start gap-5 md:gap-7 py-7 md:py-9 text-left group cursor-hover"
-                    onClick={() => setActive(index)}
-                    aria-expanded={isActive}
-                    data-testid={`service-row-${service.id}`}
-                  >
-                    {/* Gold active bar */}
-                    <div className="flex-shrink-0 flex flex-col items-center pt-2 gap-1.5">
-                      <motion.div
-                        animate={{ scaleY: isActive ? 1 : 0, opacity: isActive ? 1 : 0 }}
-                        initial={{ scaleY: 0, opacity: 0 }}
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                        className="w-px bg-primary origin-top"
-                        style={{ height: '2.5rem' }}
-                      />
-                      <span
-                        className={`font-mono text-[10px] tracking-widest transition-colors duration-300 ${
-                          isActive ? 'text-primary' : 'text-white/30 group-hover:text-white/50'
-                        }`}
-                      >
-                        {service.id}
-                      </span>
-                    </div>
-
-                    {/* Title */}
-                    <div className="flex-1 min-w-0">
-                      <h4
-                        className={`font-serif leading-[1.05] transition-all duration-500 ${
-                          isActive
-                            ? 'text-5xl md:text-6xl lg:text-7xl text-white italic'
-                            : 'text-4xl md:text-5xl lg:text-6xl text-white/45 group-hover:text-white/75'
-                        }`}
-                      >
-                        {service.title}
-                      </h4>
-                      {!isActive && (
-                        <p className="mt-1.5 font-mono text-[10px] tracking-widest uppercase text-white/25 group-hover:text-white/40 transition-colors duration-300">
-                          {service.category}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Toggle icon */}
-                    <div className="flex-shrink-0 pt-3 md:pt-4">
-                      <motion.div
-                        animate={{ rotate: isActive ? 45 : 0 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
-                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-colors duration-300 ${
-                          isActive ? 'border-primary text-primary' : 'border-white/20 text-white/40 group-hover:border-white/40 group-hover:text-white/70'
-                        }`}
-                      >
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                          <line x1="5" y1="0" x2="5" y2="10" stroke="currentColor" strokeWidth="1.25" />
-                          <line x1="0" y1="5" x2="10" y2="5" stroke="currentColor" strokeWidth="1.25" />
-                        </svg>
-                      </motion.div>
-                    </div>
-                  </button>
-
-                  {/* ── Expanded content ─────────────────────── */}
-                  <AnimatePresence initial={false}>
-                    {isActive && (
-                      <motion.div
-                        key={`expand-${service.id}`}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1, transition: { duration: 0.5, ease: EASE_OUT_EXPO } }}
-                        exit={{ height: 0, opacity: 0, transition: { duration: 0.35, ease: EASE_IN_QUART } }}
-                        className="overflow-hidden"
-                      >
-                        <motion.div
-                          initial={{ opacity: 0, y: 12 }}
-                          animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: 0.12 } }}
-                          exit={{ opacity: 0, y: 4, transition: { duration: 0.15 } }}
-                          className="pl-12 md:pl-14 pb-9 md:pb-11 pr-2"
-                        >
-                          {/* Mobile-only preview */}
-                          <div className="md:hidden mb-7 rounded-[16px] overflow-hidden border border-primary/15 aspect-[4/3]">
-                            <ServicePreview id={service.id} />
-                          </div>
-
-                          <p className="font-sans text-base md:text-lg text-white/65 leading-relaxed mb-7 max-w-lg">
-                            {service.description}
-                          </p>
-
-                          {/* Key outcomes */}
-                          <ul className="mb-8 space-y-3">
-                            {service.outcomes.map((outcome, i) => (
-                              <li key={i} className="flex items-center gap-3">
-                                <span className="w-1.5 h-px bg-primary flex-shrink-0" />
-                                <span className="font-mono text-xs tracking-widest uppercase text-white/55">
-                                  {outcome}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-
-                          {/* CTA */}
-                          <button
-                            onClick={() => scrollTo('#contact')}
-                            className="group inline-flex items-center gap-2.5 font-mono text-xs tracking-widest uppercase text-primary border border-primary/40 rounded-full px-6 py-3 hover:bg-primary hover:text-black hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(212,175,55,0.3)] transition-all duration-300 cursor-hover"
-                          >
-                            {service.cta}
-                            <ArrowUpRight size={13} className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                          </button>
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Right: sticky 3D tilt preview panel — desktop only */}
-          <div className="hidden md:block flex-shrink-0 w-[360px] lg:w-[420px]">
-            <div className="sticky top-28">
-              {/* Label */}
-              <p className="font-mono text-[10px] tracking-widest uppercase text-white/25 mb-4">
-                Live Preview — {services[active].category}
+            <div>
+              <p className="font-mono text-primary text-[10px] tracking-[0.28em] uppercase mb-5">
+                01 / Services
               </p>
-
-              {/* 3D tilt card */}
-              <TiltPreviewCard active={active} />
-
-              {/* Service indicator pills */}
-              <div className="flex items-center gap-2 mt-5">
-                {services.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActive(i)}
-                    className="cursor-hover"
-                    aria-label={`View ${services[i].title}`}
-                  >
-                    <motion.div
-                      animate={{
-                        width: active === i ? 20 : 6,
-                        backgroundColor: active === i ? '#D4AF37' : 'rgba(255,255,255,0.18)',
-                      }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                      className="h-[3px] rounded-full"
-                    />
-                  </button>
-                ))}
-              </div>
+              <h2 className="font-serif text-5xl md:text-7xl text-white italic leading-none">
+                Built to Grow
+              </h2>
             </div>
-          </div>
-        </motion.div>
+            <button
+              onClick={() => scrollTo('#contact')}
+              data-testid="services-cta"
+              className="self-start md:self-auto flex items-center gap-2 font-mono text-[11px] tracking-[0.2em] uppercase text-white/45 hover:text-primary transition-colors duration-300 cursor-hover"
+            >
+              Start a Project <ArrowUpRight size={14} />
+            </button>
+          </motion.div>
+        </div>
+
+        {/* ── Four alternating editorial showcases ───────────── */}
+        {services.map((service) => (
+          <ServiceBlock key={service.id} service={service} />
+        ))}
 
         {/* ── Additional services grid ───────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="mt-20 md:mt-24 pt-12 border-t border-white/5"
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.65, ease: 'easeOut' }}
+          className="py-20 md:py-24 border-t border-white/[0.06]"
         >
-          <p className="font-mono text-primary text-[10px] tracking-widest uppercase mb-8">Also available</p>
+          <p className="font-mono text-primary text-[10px] tracking-[0.28em] uppercase mb-10">
+            Also available
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-0">
             {additionalServices.map((s) => (
               <div
                 key={s}
-                className="group flex items-center gap-3 py-4 border-b border-white/5 hover:border-primary/25 transition-colors duration-300 cursor-hover pr-4"
+                className="group flex items-center gap-3 py-[18px] border-b border-white/[0.05] hover:border-primary/20 transition-colors duration-300 cursor-hover pr-4"
               >
-                <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary flex-shrink-0 transition-colors duration-300" />
-                <span className="font-sans text-sm text-white/50 group-hover:text-white/85 transition-colors duration-300">{s}</span>
+                <span className="w-1 h-1 rounded-full bg-primary/35 group-hover:bg-primary flex-shrink-0 transition-colors duration-300" />
+                <span className="font-sans text-sm text-white/45 group-hover:text-white/85 transition-colors duration-300">
+                  {s}
+                </span>
               </div>
             ))}
           </div>

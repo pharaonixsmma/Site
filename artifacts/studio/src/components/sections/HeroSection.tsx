@@ -6,9 +6,10 @@ import { ArrowUpRight } from 'lucide-react';
 
 interface HeroSectionProps {
   mousePosition: { x: number; y: number };
+  touchInteracting?: boolean;
 }
 
-export default function HeroSection({ mousePosition }: HeroSectionProps) {
+export default function HeroSection({ mousePosition, touchInteracting = false }: HeroSectionProps) {
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function HeroSection({ mousePosition }: HeroSectionProps) {
     <section id="home" className="relative h-screen w-full overflow-hidden bg-black">
       <div className="absolute inset-0 z-0">
         <Canvas gl={{ antialias: true, alpha: true }}>
-          <HeroScene mousePosition={mousePosition} />
+          <HeroScene mousePosition={mousePosition} touchInteracting={touchInteracting} />
         </Canvas>
       </div>
 

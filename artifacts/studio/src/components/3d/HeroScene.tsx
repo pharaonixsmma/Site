@@ -6,9 +6,10 @@ import ParticleField from './ParticleField';
 
 interface HeroSceneProps {
   mousePosition: { x: number; y: number };
+  touchInteracting?: boolean;
 }
 
-export default function HeroScene({ mousePosition }: HeroSceneProps) {
+export default function HeroScene({ mousePosition, touchInteracting = false }: HeroSceneProps) {
   const groupRef = useRef<THREE.Group>(null);
   const cameraTarget = new THREE.Vector3();
 
@@ -58,7 +59,7 @@ export default function HeroScene({ mousePosition }: HeroSceneProps) {
         </Float>
       </group>
 
-      <ParticleField mousePosition={mousePosition} />
+      <ParticleField mousePosition={mousePosition} touchInteracting={touchInteracting} />
       
       {/* Additional ambient sparkles */}
       <Sparkles count={100} scale={10} size={2} color="#D4AF37" opacity={0.2} speed={0.4} />

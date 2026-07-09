@@ -4,9 +4,10 @@ import * as THREE from 'three';
 
 interface ParticleFieldProps {
   mousePosition?: { x: number; y: number };
+  touchInteracting?: boolean;
 }
 
-export default function ParticleField({ mousePosition = { x: 0, y: 0 } }: ParticleFieldProps) {
+export default function ParticleField({ mousePosition = { x: 0, y: 0 }, touchInteracting = false }: ParticleFieldProps) {
   const pointsRef = useRef<THREE.Points>(null);
   const count = 3000;
 
@@ -14,6 +15,12 @@ export default function ParticleField({ mousePosition = { x: 0, y: 0 } }: Partic
   // snapping the field around on every mousemove sample.
   const smoothedMouse = useRef({ x: 0, y: 0 });
   const entrance = useRef(0); // 0 -> 1 gather-in progress
+
+  // Touch-only finger proximity reaction. Eases in while a finger is
+  // actively moving and eases back out the moment it stops or lifts, so the
+  // field never snaps -- desktop stays untouched since this stays at 0
+  // whenever `touchInteracting` is false (i.e. always, for mouse input).
+  const touchIntensity = useRef(0);
 
   const [homePositions, scatterOffsets, sizes] = useMemo(() => {
     const homePositions = new Float32Array(count * 3);
@@ -64,12 +71,50 @@ export default function ParticleField({ mousePosition = { x: 0, y: 0 } }: Partic
     entrance.current = Math.min(entrance.current + delta / 2.2, 1);
     const gather = 1 - Math.pow(1 - entrance.current, 3); // ease-out cubic
 
+    // Ease the touch-interaction intensity toward its target (1 while a
+    // finger is moving, 0 once it stops/lifts) so the effect fades smoothly
+    // rather than toggling abruptly.
+    const targetIntensity = touchInteracting ? 1 : 0;
+    // Fast time constant (~70ms) so a lifted/paused finger reads as "at
+    // rest" again within roughly a quarter second, including the idle
+    // detection delay upstream.
+    touchIntensity.current += (targetIntensity - touchIntensity.current) * Math.min(delta * 14, 1);
+    const activeIntensity = touchIntensity.current;
+
+    // Pointer position projected into the same coordinate space as the
+    // particle field, used as the center of a soft interaction radius.
+    const pointerX = smoothedMouse.current.x * 4.5;
+    const pointerY = smoothedMouse.current.y * 4.5;
+    const interactionRadius = 2.4;
+    const interactionStrength = 0.45;
+    const applyInteraction = activeIntensity > 0.001;
+
     const posAttr = pointsRef.current.geometry.attributes.position;
     for (let i = 0; i < count; i++) {
       const ix = i * 3;
-      posAttr.array[ix] = THREE.MathUtils.lerp(scatterOffsets[ix], homePositions[ix], gather);
-      posAttr.array[ix + 1] = THREE.MathUtils.lerp(scatterOffsets[ix + 1], homePositions[ix + 1], gather);
-      posAttr.array[ix + 2] = THREE.MathUtils.lerp(scatterOffsets[ix + 2], homePositions[ix + 2], gather);
+      let px = THREE.MathUtils.lerp(scatterOffsets[ix], homePositions[ix], gather);
+      let py = THREE.MathUtils.lerp(scatterOffsets[ix + 1], homePositions[ix + 1], gather);
+      const pz = THREE.MathUtils.lerp(scatterOffsets[ix + 2], homePositions[ix + 2], gather);
+
+      if (applyInteraction) {
+        // Finger position is a 2D screen point, so proximity and the
+        // resulting push are both measured in the x/y plane only -- keeps
+        // the "soft radius around the finger" consistent regardless of a
+        // particle's depth.
+        const dx = px - pointerX;
+        const dy = py - pointerY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < interactionRadius && dist > 0.0001) {
+          const falloff = 1 - dist / interactionRadius;
+          const push = falloff * falloff * interactionStrength * activeIntensity * gather;
+          px += (dx / dist) * push;
+          py += (dy / dist) * push;
+        }
+      }
+
+      posAttr.array[ix] = px;
+      posAttr.array[ix + 1] = py;
+      posAttr.array[ix + 2] = pz;
     }
     posAttr.needsUpdate = true;
 

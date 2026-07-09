@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useCallback } from 'react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import ServicePreview, { ServicePreviewStyles } from '@/components/ui/ServicePreview';
 
@@ -7,10 +7,10 @@ import ServicePreview, { ServicePreviewStyles } from '@/components/ui/ServicePre
 const services = [
   {
     id: '01',
-    title: 'Website Development',
+    title: 'Website Design',
     category: 'Custom Web Presence',
     description:
-      'Custom websites built to convert. Fast, sharp, and crafted entirely around your brand — every pixel positioned to turn visitors into loyal customers.',
+      'Premium websites built to convert. Crafted entirely around your brand — every pixel positioned to turn first-time visitors into loyal customers.',
     outcomes: [
       'Conversion-optimised design',
       'Mobile-first performance',
@@ -20,29 +20,42 @@ const services = [
   },
   {
     id: '02',
-    title: 'Social Media Management',
-    category: 'Brand & Content',
+    title: 'Brand Identity',
+    category: 'Strategy & Branding',
     description:
-      'Consistent, engaging content across every platform. We handle strategy, creation, and publishing so your brand stays top-of-mind without you lifting a finger.',
+      'A complete brand system — logo, typography, colour, and guidelines — that makes your business unforgettable from the very first impression.',
     outcomes: [
-      'Content calendar & strategy',
-      'Platform-native creative',
-      'Growth analytics & reporting',
+      'Logo & visual identity system',
+      'Brand guidelines & assets',
+      'Print & digital collateral',
     ],
-    cta: 'Grow My Brand',
+    cta: 'Build My Brand',
   },
   {
     id: '03',
     title: 'AI & Automation',
     category: 'Growth Systems',
     description:
-      'Intelligent workflows that capture leads, nurture prospects, and keep your business running 24/7 — without adding headcount or complexity.',
+      'Intelligent workflows that capture leads, qualify prospects, and keep your business running 24/7 — without adding headcount or complexity.',
     outcomes: [
       'Lead capture automation',
       '24/7 AI customer support',
       'Custom workflow systems',
     ],
     cta: 'Automate My Business',
+  },
+  {
+    id: '04',
+    title: 'Digital Marketing',
+    category: 'Performance & Growth',
+    description:
+      'Data-driven campaigns across every channel — Google, Meta, email, and beyond — engineered for measurable revenue growth.',
+    outcomes: [
+      'Multi-channel campaign strategy',
+      'Revenue-focused ad management',
+      'Analytics & monthly reporting',
+    ],
+    cta: 'Grow My Revenue',
   },
 ];
 
@@ -55,11 +68,96 @@ const additionalServices = [
   'AI Consultation',
 ];
 
-/* ─── Easing helpers (avoids framer-motion Variants type conflicts) ── */
+/* ─── Easing helpers ──────────────────────────────────────────── */
 const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as [number, number, number, number];
 const EASE_IN_QUART = [0.7, 0, 0.84, 0] as [number, number, number, number];
 
-/* ─── Component ───────────────────────────────────────────────── */
+/* ─── 3D Tilt card ────────────────────────────────────────────── */
+function TiltPreviewCard({ active }: { active: number }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Raw mouse position normalised to [-0.5, 0.5]
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+
+  // Spring-smoothed values — provide natural inertia
+  const springX = useSpring(rawX, { damping: 38, stiffness: 280, mass: 0.7 });
+  const springY = useSpring(rawY, { damping: 38, stiffness: 280, mass: 0.7 });
+
+  // Map springs → rotation angles
+  const rotateY = useTransform(springX, [-0.5, 0.5], [-7, 7]);
+  const rotateX = useTransform(springY, [-0.5, 0.5], [5, -5]);
+
+  // Floating shadow deepens as card tilts away
+  const boxShadow = useTransform(
+    springY,
+    [-0.5, 0, 0.5],
+    [
+      '0 0 0 1px rgba(212,175,55,0.08), 0 36px 70px rgba(0,0,0,0.9)',
+      '0 0 0 1px rgba(212,175,55,0.06), 0 20px 50px rgba(0,0,0,0.7)',
+      '0 0 0 1px rgba(212,175,55,0.08), 0 36px 70px rgba(0,0,0,0.9)',
+    ]
+  );
+
+  // Moving surface highlight tracks cursor
+  const [hl, setHl] = useState({ x: 50, y: 30 });
+
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const r = cardRef.current.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width - 0.5;
+    const ny = (e.clientY - r.top) / r.height - 0.5;
+    rawX.set(nx);
+    rawY.set(ny);
+    setHl({ x: (nx + 0.5) * 100, y: (ny + 0.5) * 100 });
+  }, [rawX, rawY]);
+
+  const onLeave = useCallback(() => {
+    rawX.set(0);
+    rawY.set(0);
+  }, [rawX, rawY]);
+
+  return (
+    <div
+      ref={cardRef}
+      style={{ perspective: '900px' }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+    >
+      <motion.div
+        style={{ rotateX, rotateY, transformStyle: 'preserve-3d', boxShadow }}
+        className="relative rounded-[20px] overflow-hidden border border-primary/[0.08] aspect-[4/3] bg-[#080808]"
+      >
+        {/* Static inner-edge vignette */}
+        <div className="absolute inset-0 rounded-[20px] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent pointer-events-none z-10" />
+
+        {/* Moving surface highlight — follows cursor */}
+        <div
+          className="absolute inset-0 pointer-events-none z-20 rounded-[20px]"
+          style={{
+            background: `radial-gradient(circle at ${hl.x}% ${hl.y}%, rgba(255,255,255,0.055) 0%, transparent 52%)`,
+            transition: 'background 0.08s linear',
+          }}
+        />
+
+        {/* Preview content with crossfade on service change */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={active}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1, transition: { duration: 0.35 } }}
+            exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.22 } }}
+            className="absolute inset-0"
+          >
+            <ServicePreview id={services[active].id} />
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ─── Main section ────────────────────────────────────────────── */
 export default function WorkSection() {
   const [active, setActive] = useState(0);
 
@@ -224,7 +322,7 @@ export default function WorkSection() {
             })}
           </div>
 
-          {/* Right: sticky live preview panel — desktop only */}
+          {/* Right: sticky 3D tilt preview panel — desktop only */}
           <div className="hidden md:block flex-shrink-0 w-[360px] lg:w-[420px]">
             <div className="sticky top-28">
               {/* Label */}
@@ -232,25 +330,10 @@ export default function WorkSection() {
                 Live Preview — {services[active].category}
               </p>
 
-              {/* Preview frame */}
-              <div className="relative rounded-[20px] overflow-hidden border border-primary/12 aspect-[4/3] bg-[#080808] shadow-[0_0_0_1px_rgba(212,175,55,0.06),0_24px_60px_rgba(0,0,0,0.7)]">
-                {/* Inner edge highlight */}
-                <div className="absolute inset-0 rounded-[20px] bg-gradient-to-br from-white/[0.035] via-transparent to-transparent pointer-events-none z-10" />
+              {/* 3D tilt card */}
+              <TiltPreviewCard active={active} />
 
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={active}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.38 } }}
-                    exit={{ opacity: 0, y: -10, transition: { duration: 0.25 } }}
-                    className="absolute inset-0"
-                  >
-                    <ServicePreview id={services[active].id} />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* Service indicator dots */}
+              {/* Service indicator pills */}
               <div className="flex items-center gap-2 mt-5">
                 {services.map((_, i) => (
                   <button
@@ -262,7 +345,7 @@ export default function WorkSection() {
                     <motion.div
                       animate={{
                         width: active === i ? 20 : 6,
-                        backgroundColor: active === i ? '#D4AF37' : 'rgba(255,255,255,0.2)',
+                        backgroundColor: active === i ? '#D4AF37' : 'rgba(255,255,255,0.18)',
                       }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                       className="h-[3px] rounded-full"

@@ -178,19 +178,30 @@ function ServiceBlock({ service }: { service: Service }) {
   /* Text column */
   const TextCol = (
     <div className="flex flex-col justify-center">
-      {/* Service number + category */}
+      {/* Numeral — small gold index */}
       <motion.p
-        initial={{ opacity: 0, y: 14 }}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.65, ease: EXPO }}
-        className="font-mono text-primary text-[10px] tracking-[0.28em] uppercase mb-8"
+        transition={{ duration: 0.55, ease: EXPO }}
+        className="font-mono text-primary/75 text-[11px] tracking-[0.3em] uppercase mb-4"
       >
-        {service.num} — {service.category}
+        {service.num}
       </motion.p>
 
+      {/* Category — dominant editorial heading */}
+      <motion.h4
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-60px' }}
+        transition={{ duration: 0.7, ease: EXPO, delay: 0.07 }}
+        className="font-mono text-[1.375rem] md:text-[1.75rem] lg:text-[2rem] text-white uppercase tracking-[0.05em] leading-[1.1] mb-12 md:mb-14"
+      >
+        {service.category}
+      </motion.h4>
+
       {/* Title — line by line reveal */}
-      <div className="mb-10 overflow-hidden">
+      <div className="mb-12 md:mb-14 overflow-hidden">
         {service.title.map((line, i) => (
           <div key={i} className="overflow-hidden">
             <motion.h3

@@ -92,7 +92,9 @@ export default function FloatingNav() {
         >
           <img
             src={logoUrl}
-            alt="PHARAONIX"
+            alt="PHARAONIX logo"
+            width={32}
+            height={32}
             className="w-7 h-7 md:w-8 md:h-8 object-contain rounded-full"
           />
           <span className="font-mono font-bold text-sm tracking-widest text-primary hidden sm:block">PHARAONIX</span>

@@ -66,7 +66,9 @@ export default function LoaderOverlay({ onComplete }: LoaderOverlayProps) {
         <img
           ref={logoRef}
           src={logoUrl}
-          alt="PHARAONIX"
+          alt="PHARAONIX logo"
+          width={288}
+          height={288}
           className="block w-56 sm:w-64 md:w-72 h-auto object-contain select-none"
           draggable={false}
           style={{

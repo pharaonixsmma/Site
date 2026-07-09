@@ -203,9 +203,13 @@ export default function ContactSection() {
               <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5" noValidate>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
                   <div>
+                    <label htmlFor="contact-name" className="sr-only">Your name</label>
                     <input
+                      id="contact-name"
                       type="text"
                       placeholder="Your name"
+                      aria-label="Your name"
+                      aria-invalid={!!errors.name}
                       value={form.name}
                       onChange={e => handleChange('name', e.target.value)}
                       data-testid="contact-input-name"
@@ -214,9 +218,13 @@ export default function ContactSection() {
                     {errors.name && <p className="font-mono text-xs text-red-400/80 mt-1">{errors.name}</p>}
                   </div>
                   <div>
+                    <label htmlFor="contact-business" className="sr-only">Business name</label>
                     <input
+                      id="contact-business"
                       type="text"
                       placeholder="Business name"
+                      aria-label="Business name"
+                      aria-invalid={!!errors.businessName}
                       value={form.businessName}
                       onChange={e => handleChange('businessName', e.target.value)}
                       data-testid="contact-input-business"
@@ -228,9 +236,13 @@ export default function ContactSection() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
                   <div>
+                    <label htmlFor="contact-phone" className="sr-only">Phone number</label>
                     <input
+                      id="contact-phone"
                       type="tel"
                       placeholder="Phone number"
+                      aria-label="Phone number"
+                      aria-invalid={!!errors.phone}
                       value={form.phone}
                       onChange={e => handleChange('phone', e.target.value)}
                       data-testid="contact-input-phone"
@@ -239,9 +251,13 @@ export default function ContactSection() {
                     {errors.phone && <p className="font-mono text-xs text-red-400/80 mt-1">{errors.phone}</p>}
                   </div>
                   <div>
+                    <label htmlFor="contact-email" className="sr-only">Email address</label>
                     <input
+                      id="contact-email"
                       type="email"
                       placeholder="Email address"
+                      aria-label="Email address"
+                      aria-invalid={!!errors.email}
                       value={form.email}
                       onChange={e => handleChange('email', e.target.value)}
                       data-testid="contact-input-email"
@@ -252,9 +268,13 @@ export default function ContactSection() {
                 </div>
 
                 <div>
+                  <label htmlFor="contact-service" className="sr-only">Select a service</label>
                   <select
+                    id="contact-service"
                     value={form.service}
                     onChange={e => handleChange('service', e.target.value)}
+                    aria-label="Select a service"
+                    aria-invalid={!!errors.service}
                     data-testid="contact-select-service"
                     className={`w-full bg-background/60 border ${errors.service ? 'border-red-500/50' : 'border-white/10'} text-white font-sans text-sm px-4 md:px-5 py-3 md:py-4 rounded-sm focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer`}
                   >
@@ -283,7 +303,14 @@ export default function ContactSection() {
         {/* ─── Footer bar ─── */}
         <div className="mt-16 md:mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
           <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
-            <img src={logoUrl} alt="PHARAONIX" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-contain flex-shrink-0" />
+            <img
+              src={logoUrl}
+              alt="PHARAONIX logo"
+              width={32}
+              height={32}
+              loading="lazy"
+              className="w-7 h-7 md:w-8 md:h-8 rounded-full object-contain flex-shrink-0"
+            />
             <span className="font-mono text-sm text-primary tracking-widest font-bold">PHARAONIX</span>
             <span className="font-mono text-xs text-white/30 tracking-wider">— From Vision to Victory.</span>
           </div>

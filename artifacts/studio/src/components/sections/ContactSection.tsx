@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, Phone, Mail, Instagram, Twitter } from 'lucide-react';
 import { motion } from 'framer-motion';
-import logoUrl from '@assets/file_0000000028dc720ba9729351fb27a291_1783271991817.png';
+import logoUrl from '@assets/logo-optimized.webp';
 
 const SERVICES = [
   'Website Development',

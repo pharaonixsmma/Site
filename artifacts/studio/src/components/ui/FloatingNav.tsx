@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import logoUrl from '@assets/file_0000000028dc720ba9729351fb27a291_1783271991817.png';
+import logoUrl from '@assets/logo-optimized.webp';
 
 export default function FloatingNav() {
   const { scrollY } = useScroll();

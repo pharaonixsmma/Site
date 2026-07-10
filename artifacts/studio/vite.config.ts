@@ -50,6 +50,19 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-three': ['three', '@react-three/fiber', '@react-three/drei'],
+          'vendor-gsap': ['gsap', '@gsap/react'],
+          'vendor-motion': ['framer-motion'],
+          // Note: the shadcn/ui component library under src/components/ui
+          // (Radix-based) ships in this workspace but none of its wrappers
+          // are actually imported by any page/section, so Rollup tree-shakes
+          // Radix out entirely -- no manual chunk needed for it.
+        },
+      },
+    },
   },
 
   server: {

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
-import logoUrl from '@assets/file_00000000a29071fabf2b5caf9469536a_1783276703702.png';
+import logoUrl from '@assets/loader-logo-optimized.webp';
 
 interface LoaderOverlayProps {
   onComplete: () => void;

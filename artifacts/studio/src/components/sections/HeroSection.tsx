@@ -1,8 +1,14 @@
-import { useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import HeroScene from '../3d/HeroScene';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ArrowUpRight } from 'lucide-react';
+
+// The Three.js particle canvas is the single heaviest dependency in the
+// bundle (three + @react-three/fiber + drei). It's purely a decorative
+// backdrop behind the hero copy, so it's split into its own chunk and
+// mounted async -- the headline, description, and CTAs (the actual LCP/
+// interactive content) render immediately without waiting on it, while the
+// canvas fades in over the same black background it always rendered on.
+const HeroCanvas = lazy(() => import('./HeroCanvas'));
 
 interface HeroSectionProps {
   mousePosition: { x: number; y: number };
@@ -60,9 +66,9 @@ export default function HeroSection({ mousePosition, touchInteracting = false }:
   return (
     <section id="home" className="relative h-screen w-full overflow-hidden bg-black">
       <div className="absolute inset-0 z-0">
-        <Canvas gl={{ antialias: true, alpha: true }}>
-          <HeroScene mousePosition={mousePosition} touchInteracting={touchInteracting} />
-        </Canvas>
+        <Suspense fallback={null}>
+          <HeroCanvas mousePosition={mousePosition} touchInteracting={touchInteracting} />
+        </Suspense>
       </div>
 
       <div className="relative z-10 h-full w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col justify-center pointer-events-none">

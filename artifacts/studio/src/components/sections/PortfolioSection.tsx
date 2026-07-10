@@ -1,140 +1,211 @@
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import ProjectPreview from '@/components/ui/ProjectPreview';
+import BrowserMockup from '@/components/ui/BrowserMockup';
 
 const projects = [
   {
     id: '01',
     title: 'Healthcare Clinic',
     category: 'Website & Local SEO',
-    description: 'Full website redesign with online appointment booking and local SEO optimization.',
+    description:
+      'A premium digital experience designed to increase appointment bookings, build trust, and improve local search visibility.',
+    tags: ['Mobile First', 'Conversion Optimized', 'SEO Ready'],
   },
   {
     id: '02',
     title: 'Modern Gym',
-    category: 'Brand Identity & Lead Capture',
-    description: 'Brand identity, website, and lead capture system for a modern fitness brand.',
+    category: 'Brand Identity & Lead Generation',
+    description:
+      'A bold brand identity and lead-generation system engineered to fill class schedules and grow a modern fitness membership base.',
+    tags: ['Brand System', 'Lead Capture', 'High Contrast UI'],
   },
   {
     id: '03',
     title: 'Premium Restaurant',
     category: 'Digital Presence',
-    description: 'Menu showcase website with Google Maps integration and social media setup.',
+    description:
+      'An elegant dining experience translated online — menu storytelling, reservations, and a presence built to match the room.',
+    tags: ['Menu Showcase', 'Reservations Ready', 'Local Presence'],
+  },
+  {
+    id: '04',
+    title: 'Luxury Real Estate',
+    category: 'High-End Property Experience',
+    description:
+      'A refined property showcase built to make seven-figure listings feel as considered online as they are in person.',
+    tags: ['Listing Showcase', 'Editorial Layout', 'Premium Feel'],
+  },
+  {
+    id: '05',
+    title: 'AI SaaS Dashboard',
+    category: 'Product Website & UI',
+    description:
+      'A product website and dashboard UI designed to make a complex AI platform feel effortless, credible, and fast.',
+    tags: ['Product UI', 'Data Visualization', 'Dark Mode Native'],
+  },
+  {
+    id: '06',
+    title: 'Formula 1 Team Experience',
+    category: 'Interactive Marketing Website',
+    description:
+      'A high-energy marketing site concept built to carry motorsport intensity into every scroll, stat, and driver reveal.',
+    tags: ['Motion Design', 'Interactive Stats', 'High Energy Brand'],
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.18 } },
+const textContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
 };
 
-const cardVariants = {
-  hidden: { y: 60, opacity: 0 },
-  visible: {
-    y: 0, opacity: 1,
-    transition: { type: 'spring' as const, damping: 22, stiffness: 90 },
-  },
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.19, 1, 0.22, 1] as const } },
 };
+
+const labelVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.6, ease: 'easeOut' as const } },
+};
+
+const titleVariants = {
+  hidden: { opacity: 0, y: 36 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] as const } },
+};
+
+const tagsContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const tagVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+};
+
+const browserVariants = {
+  hidden: { opacity: 0, y: 44 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: [0.19, 1, 0.22, 1] as const, delay: 0.15 } },
+};
+
+function ProjectCaseStudy({
+  project,
+  index,
+}: {
+  project: (typeof projects)[number];
+  index: number;
+}) {
+  const reversed = index % 2 === 1;
+
+  const scrollToContact = () => {
+    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  return (
+    <div
+      data-testid={`portfolio-case-${project.id}`}
+      className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-10 items-center py-16 md:py-24 border-b border-white/[0.06] last:border-b-0"
+    >
+      {/* Text column */}
+      <motion.div
+        variants={textContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-120px' }}
+        className={reversed ? 'lg:order-2' : 'lg:order-1'}
+      >
+        <motion.div variants={labelVariants} className="flex items-center gap-3 mb-6">
+          <span className="font-mono text-primary text-xs tracking-[0.25em]">{project.id} /</span>
+          <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/35 border border-white/15 rounded-full px-2.5 py-1">
+            Concept Project
+          </span>
+        </motion.div>
+
+        <motion.h4 variants={titleVariants} className="font-serif text-4xl md:text-6xl text-white leading-[1.02] mb-5">
+          {project.title}
+        </motion.h4>
+
+        <motion.p variants={fadeUpVariants} className="font-mono text-xs uppercase tracking-[0.2em] text-primary/80 mb-6">
+          {project.category}
+        </motion.p>
+
+        <motion.p variants={fadeUpVariants} className="font-sans text-base md:text-lg text-muted-foreground leading-relaxed max-w-lg mb-7">
+          {project.description}
+        </motion.p>
+
+        <motion.div variants={tagsContainerVariants} className="flex flex-wrap gap-2.5 mb-9">
+          {project.tags.map((tag) => (
+            <motion.span
+              key={tag}
+              variants={tagVariants}
+              className="font-mono text-[10px] uppercase tracking-widest text-white/60 border border-white/10 bg-white/[0.02] rounded-full px-3 py-1.5"
+            >
+              {tag}
+            </motion.span>
+          ))}
+        </motion.div>
+
+        <motion.button
+          variants={fadeUpVariants}
+          onClick={scrollToContact}
+          data-testid={`portfolio-cta-${project.id}`}
+          className="group/cta inline-flex items-center gap-2 font-mono text-xs tracking-[0.2em] uppercase text-white cursor-hover"
+        >
+          <span className="relative">
+            View Case Study
+            <span className="absolute left-0 -bottom-1 h-px w-full bg-primary/80 origin-left scale-x-0 group-hover/cta:scale-x-100 transition-transform duration-400 ease-[cubic-bezier(0.19,1,0.22,1)]" />
+          </span>
+          <ArrowUpRight
+            size={14}
+            className="text-primary transition-transform duration-400 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1"
+          />
+        </motion.button>
+      </motion.div>
+
+      {/* Browser mockup column */}
+      <motion.div
+        variants={browserVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-120px' }}
+        className={reversed ? 'lg:order-1' : 'lg:order-2'}
+      >
+        <BrowserMockup>
+          <ProjectPreview id={project.id} />
+        </BrowserMockup>
+      </motion.div>
+    </div>
+  );
+}
 
 export default function PortfolioSection() {
   return (
     <section id="portfolio" className="py-24 bg-card">
-      <style>{`
-        @keyframes portFloat {
-          0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-2.5px); }
-        }
-        .port-float { animation: portFloat 5s ease-in-out infinite; }
-        .port-float:hover { animation-play-state: paused; }
-      `}</style>
-
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
-          className="mb-16 md:mb-20"
+          className="mb-8 md:mb-10"
         >
           <h2 className="font-mono text-primary text-sm tracking-widest uppercase mb-4">02 / Portfolio</h2>
           <div className="flex items-end justify-between">
             <h3 className="font-serif text-5xl md:text-7xl text-white italic">The Standard</h3>
             <p className="hidden md:block font-mono text-xs text-white/30 max-w-xs text-right leading-relaxed">
-              Demonstration projects — real client work added as engagements are completed.
+              Concept projects — imagined case studies showcasing our craft, not completed client work.
             </p>
           </div>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
-        >
+        <div>
           {projects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              variants={cardVariants}
-              data-testid={`portfolio-card-${project.id}`}
-              className="group flex flex-col gap-4 cursor-hover"
-            >
-              {/* Preview card */}
-              <div
-                className="
-                  port-float relative overflow-hidden
-                  rounded-[24px]
-                  border border-[#D4AF37]/18
-                  shadow-[0_0_0_1px_rgba(212,175,55,0.05),0_8px_32px_rgba(0,0,0,0.55),0_0_50px_rgba(212,175,55,0.03)]
-                  group-hover:border-[#D4AF37]/40
-                  group-hover:shadow-[0_0_0_1px_rgba(212,175,55,0.09),0_12px_50px_rgba(0,0,0,0.65),0_0_70px_rgba(212,175,55,0.1)]
-                  group-hover:-translate-y-2
-                  transition-all duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]
-                  aspect-[4/3]
-                "
-                style={{ animationDelay: `${index * 0.55}s` }}
-              >
-                {/* Glass inner highlight */}
-                <div className="absolute inset-0 rounded-[24px] bg-gradient-to-br from-white/[0.04] via-transparent to-transparent pointer-events-none z-10" />
-
-                {/* Live mockup */}
-                <div className="absolute inset-0">
-                  <ProjectPreview id={project.id} />
-                </div>
-
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/72 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-400 z-20 flex items-end rounded-[24px]">
-                  <div className="p-5 pb-6">
-                    <p className="font-sans text-white/85 text-xs leading-relaxed">
-                      {project.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Corner CTA */}
-                <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 backdrop-blur-md border border-white/15 flex items-center justify-center translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-30">
-                  <ArrowUpRight className="text-white" size={14} />
-                </div>
-
-                {/* Index badge */}
-                <div className="absolute top-4 left-4 font-mono text-[10px] text-primary/70 z-30 bg-black/40 rounded-md px-1.5 py-0.5 backdrop-blur-sm border border-primary/10">
-                  {project.id}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <h4 className="font-serif text-2xl text-white group-hover:text-primary transition-colors duration-300">
-                  {project.title}
-                </h4>
-                <p className="font-mono text-xs text-muted-foreground uppercase tracking-widest">
-                  {project.category}
-                </p>
-              </div>
-            </motion.div>
+            <ProjectCaseStudy key={project.id} project={project} index={index} />
           ))}
-        </motion.div>
+        </div>
 
-        <p className="md:hidden mt-8 font-mono text-xs text-white/30 text-center leading-relaxed">
-          Demonstration projects — real client work added as engagements are completed.
+        <p className="md:hidden mt-4 font-mono text-xs text-white/30 text-center leading-relaxed">
+          Concept projects — imagined case studies showcasing our craft, not completed client work.
         </p>
       </div>
     </section>
